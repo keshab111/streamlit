@@ -1,0 +1,25 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+import pickle
+
+# Load the datasets
+train = pd.read_csv('titanic.train.csv')
+
+# Data preprocessing (as previously detailed)
+train['Age'].fillna(train['Age'].median(), inplace=True)
+train['Embarked'].fillna(train['Embarked'].mode()[0], inplace=True)
+train = pd.get_dummies(train, columns=['Sex', 'Embarked'], drop_first=True)
+X = train.drop(['Survived', 'Name', 'Ticket', 'Cabin'], axis=1)
+y = train['Survived']
+
+# Split the data into training and validation sets
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train the logistic regression model
+model = LogisticRegression(max_iter=200)
+model.fit(X_train, y_train)
+
+# Save the trained model
+with open('logistic_model.pkl', 'wb') as file:
+    pickle.dump(model, file)
