@@ -1,25 +1,30 @@
+
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 import pickle
 
-# Load the datasets
-train = pd.read_csv('titanic.train.csv')
+# Load the Titanic dataset
+train_data = pd.read_csv('Titanic_train.csv')
 
-# Data preprocessing (as previously detailed)
-train['Age'].fillna(train['Age'].median(), inplace=True)
-train['Embarked'].fillna(train['Embarked'].mode()[0], inplace=True)
-train = pd.get_dummies(train, columns=['Sex', 'Embarked'], drop_first=True)
-X = train.drop(['Survived', 'Name', 'Ticket', 'Cabin'], axis=1)
-y = train['Survived']
+# Data preprocessing
+# Drop columns that are not useful for model building
+train_data = train_data.drop(['Name', 'Ticket', 'Cabin'], axis=1)
 
-# Split the data into training and validation sets
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+# Fill missing values in 'Age' with median and 'Embarked' with the most common value
+train_data['Age'].fillna(train_data['Age'].median(), inplace=True)
+train_data['Embarked'].fillna(train_data['Embarked'].mode()[0], inplace=True)
 
-# Train the logistic regression model
-model = LogisticRegression(max_iter=200)
-model.fit(X_train, y_train)
+# Convert categorical features to numeric using one-hot encoding
+train_data = pd.get_dummies(train_data, columns=['Sex', 'Embarked'], drop_first=True)
 
-# Save the trained model
+# Split the data into features and target
+X = train_data.drop('Survived', axis=1)
+y = train_data['Survived']
+
+# Build the logistic regression model
+model = LogisticRegression(max_iter=1000)
+model.fit(X, y)
+
+# Save the model to a file
 with open('logistic_model.pkl', 'wb') as file:
     pickle.dump(model, file)
